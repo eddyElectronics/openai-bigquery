@@ -5,8 +5,8 @@ import "dotenv/config";
 
 // ถ้าคุณมีไฟล์เหล่านี้อยู่แล้ว ให้ uncomment
 // ถ้ายังไม่มี ให้คอมเมนต์สองบรรทัดนี้ไว้ก่อนทดสอบ
-// import { buildSQL_APPS } from "./sqlBuilder.js";
-// import { runBigQuery } from "./bigquery.js";
+ import { buildSQL_APPS } from "./sqlBuilder.js";
+ import { runBigQuery } from "./bigquery.js";
 
 const app = express();
 app.use(express.json());

@@ -23,6 +23,7 @@ const PORT = process.env.PORT || 3000;
 // ======================
 app.post("/chat", async (req, res) => {
   let threadId = null;
+  let runId = null;
   
   try {
     const userMsg = req.body.message;
@@ -36,6 +37,7 @@ app.post("/chat", async (req, res) => {
     while (retries > 0) {
       try {
         thread = await openai.beta.threads.create();
+        threadId = thread.id;
         break;
       } catch (err) {
         retries--;
@@ -45,7 +47,6 @@ app.post("/chat", async (req, res) => {
       }
     }
     
-    threadId = thread.id;
     console.log("Thread created:", threadId);
 
     // 2) append message
@@ -60,7 +61,8 @@ app.post("/chat", async (req, res) => {
       assistant_id: ASSISTANT_ID
     });
     
-    console.log("Run completed with status:", run.status);
+    runId = run.id;
+    console.log("Run completed with status:", run.status, "| Run ID:", runId);
 
     // 4) Handle tool calls if needed
     if (run.status === "requires_action" && run.required_action?.submit_tool_outputs?.tool_calls) {
@@ -101,10 +103,18 @@ app.post("/chat", async (req, res) => {
       // Submit tool outputs and poll again
       if (toolOutputs.length > 0) {
         console.log("Submitting tool outputs...");
+        console.log("Thread ID:", threadId, "| Run ID:", run.id);
+        
+        if (!threadId || !run.id) {
+          throw new Error(`Missing IDs - threadId: ${threadId}, runId: ${run.id}`);
+        }
+        
         await openai.beta.threads.runs.submitToolOutputsAndPoll(
-          threadId,
           run.id,
-          { tool_outputs: toolOutputs }
+          {
+            thread_id: threadId,
+            tool_outputs: toolOutputs
+          }
         );
         console.log("Tool outputs submitted");
       }

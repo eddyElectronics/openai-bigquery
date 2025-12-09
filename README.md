@@ -29,10 +29,12 @@ npm install
 ```
 
 3. Configure environment variables:
-   - Copy `.env` and update with your credentials:
-     - `OPENAI_API_KEY`: Your OpenAI API key
-     - `ASSISTANT_ID`: Your OpenAI Assistant ID
-     - `PORT`: Server port (default: 3000)
+   - Create a `.env` file in the project root with the following:
+     ```
+     OPENAI_API_KEY=your_openai_api_key_here
+     ASSISTANT_ID=your_assistant_id_here
+     PORT=3000
+     ```
 
 4. Set up Google Cloud service account:
    - Update `service-account-key.json` with your GCP credentials
@@ -48,11 +50,19 @@ The server will run on `http://localhost:3000` (or your configured PORT).
 
 ## API Endpoints
 
+These endpoints are available when running `npm start` (server.js):
+
 ### Health Check
 ```
 GET /
 ```
 Returns the server status and available endpoints.
+
+### Test OpenAI Connection
+```
+GET /test-openai
+```
+Tests the OpenAI API connection.
 
 ### Chat
 ```
@@ -63,6 +73,8 @@ Content-Type: application/json
   "message": "your query here"
 }
 ```
+
+**Note**: If using `index.js` directly, the health check is at `GET /health` instead.
 
 ## How to Commit Changes from VS Code
 
@@ -142,14 +154,18 @@ This resolves timeout issues under heavy load.
 
 ```
 openai-bigquery/
-├── server.js           # Main Express application and entry point
-├── index.js            # Alternative/legacy server implementation
+├── server.js           # Production server (used by npm start)
+├── index.js            # Main module entry point (alternative implementation)
 ├── bigquery.js         # BigQuery integration
 ├── sqlBuilder.js       # SQL query builder
 ├── package.json        # Dependencies and scripts
 ├── .env                # Environment variables (not committed)
 └── service-account-key.json  # GCP credentials (not committed)
 ```
+
+**Note**: The project has two server implementations:
+- `server.js` - The production server used by `npm start` (recommended)
+- `index.js` - Alternative implementation with different endpoint structure
 
 ## Contributing
 

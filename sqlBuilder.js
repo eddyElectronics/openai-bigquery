@@ -71,11 +71,11 @@ export function buildSQL_APPS(args) {
   groupList.forEach(g => selectClauses.unshift(g));
 
   // ---------- FROM ----------
-  const tableName = "APPS"; // ปรับชื่อ dataset.table ตามจริง เช่น `project.dataset.APPS`
+  const tableName = "`aotbigquery.FlightData.APPS`"; // ใช้ backticks สำหรับ table name
 
   // ---------- WHERE ----------
   const whereClauses = [
-    `FLIGHT_DATE BETWEEN '${start_date}' AND '${end_date}'`
+    `FLIGHT_DATE BETWEEN DATE('${start_date}') AND DATE('${end_date}')`
   ];
 
   if (airports && airports.length > 0) {
@@ -100,16 +100,26 @@ export function buildSQL_APPS(args) {
 
   const whereSQL = "WHERE " + whereClauses.join(" AND ");
 
+  // ---------- ORDER BY ----------
+  let orderBySQL = "";
+  if (groupList.length > 0) {
+    // ใช้คอลัมน์แรกที่ group by
+    orderBySQL = `ORDER BY ${groupList[0]}`;
+  } else if (selectClauses.length > 0) {
+    // ถ้าไม่มี group by ให้ใช้คอลัมน์ aggregate แรก
+    const firstMetric = selectClauses[0].split(' AS ')[1] || selectClauses[0];
+    orderBySQL = `ORDER BY ${firstMetric} DESC`;
+  }
+
   // ---------- FINAL SQL ----------
   const sql = `
-    SELECT
-      ${selectClauses.join(",\n      ")}
-    FROM ${tableName}
-    ${whereSQL}
-    ${groupSQL}
-    ORDER BY ${groupList.length > 0 ? groupList[0] : "FLIGHT_DATE"}
-    LIMIT ${limit}
-  `;
+SELECT
+  ${selectClauses.join(",\n  ")}
+FROM ${tableName}
+${whereSQL}
+${groupSQL}
+${orderBySQL}
+LIMIT ${limit}`;
 
   return sql;
 }

@@ -50,9 +50,9 @@ The server will run on `http://localhost:3000` (or your configured PORT).
 
 ### Health Check
 ```
-GET /health
+GET /
 ```
-Returns the server status.
+Returns the server status and available endpoints.
 
 ### Chat
 ```
@@ -142,8 +142,8 @@ This resolves timeout issues under heavy load.
 
 ```
 openai-bigquery/
-├── index.js            # Main Express application
-├── server.js           # Server entry point
+├── server.js           # Main Express application and entry point
+├── index.js            # Alternative/legacy server implementation
 ├── bigquery.js         # BigQuery integration
 ├── sqlBuilder.js       # SQL query builder
 ├── package.json        # Dependencies and scripts
